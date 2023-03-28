@@ -180,6 +180,7 @@ public class StartPanel extends JPanel implements ActionListener {
    */
   private void setupListeners() {
     addCelebrityButton.addActionListener(this);
+    startButton.addActionListener(this);
     
   }
 
@@ -228,13 +229,22 @@ public class StartPanel extends JPanel implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent ae) {
     // when "add celebrity" button gets clicked:
-    answerField.setBackground(Color.WHITE);
-    clueField.setBackground(Color.WHITE);
-    if (validate(answerField.getText(), clueField.getText())) {
-      addToGame();
-    } else {
-      invalidInput();
+    JButton clicked = (JButton) ae.getSource();
+    String buttonText = clicked.getText();
+
+    if (buttonText.equals("Add current celebrity")){
+      answerField.setBackground(Color.WHITE);
+      clueField.setBackground(Color.WHITE);
+      if (validate(answerField.getText(), clueField.getText())) {
+        addToGame();
+      } else {
+        invalidInput();
+      }
+    } else if (buttonText.equals("Start Celebrity game")) {
+      controller.play();
+
     }
+
     celebrityCount = controller.getCelebrityGameSize();
     celebrityCountLabel.setText(countLabelText + celebrityCount);
 
