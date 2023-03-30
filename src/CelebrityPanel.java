@@ -101,7 +101,7 @@ public class CelebrityPanel extends JPanel implements ActionListener {
     panelLayout = new SpringLayout();
     guessLabel = new JLabel("Guess:");
     staticTimerLabel = new JLabel("Time remaining: ");
-    dynamicTimerLabel = new JLabel("60");
+    dynamicTimerLabel = new JLabel("30");
     guessButton = new JButton("Submit guess");
     resetButton = new JButton("Start again");
     clueArea = new JTextArea("", 30, 20);
@@ -109,12 +109,12 @@ public class CelebrityPanel extends JPanel implements ActionListener {
     guessField = new JTextField("Enter guess here", 30);
     success = "You guessed correctly!!! \nNext Celebrity clue is: ";
     tryAgain = "You have chosen poorly, try again!\nThe clue is: ";
-    seconds = 60;
+    seconds = 30;
+    countdownTimer = new Timer(1000, null);
 
     setupPanel();
     setupLayout();
     setupListeners();
-
   }
   
   /**
@@ -145,7 +145,6 @@ public class CelebrityPanel extends JPanel implements ActionListener {
 
     // The clue area is set to not be editable by the user :D
     clueArea.setEditable(false);
-
   }
   
   /**
@@ -179,7 +178,9 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    */
   private void setupListeners() {
     guessButton.addActionListener(this);
-
+    countdownTimer.addActionListener(this);
+    countdownTimer.start();
+    resetButton.addActionListener(this);
   }
   
   /**
@@ -188,7 +189,15 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    * the end.
    */
   private void timerFires() {
-
+    seconds--;
+    dynamicTimerLabel.setText("" + seconds);
+    if (seconds == 0) {
+      countdownTimer.stop();
+      staticTimerLabel.setText("Time's up! YOU LOSE");
+      dynamicTimerLabel.setText("");
+      guessButton.setEnabled(false);
+      guessField.setEnabled(false);
+    }
   }
   
   /**
@@ -199,7 +208,9 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    */
   public void addClue(String clue) {
     clueArea.setText("The clue is: " + clue);
-
+    seconds = 30;
+    dynamicTimerLabel.setText("" + seconds);
+    countdownTimer.restart();
   }
   
   /**
@@ -207,33 +218,53 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    * to provide the same functionality.
    */
   private void updateScreen() {
-    String guessText = guessField.getText();
-    clueArea.append("\nYou guessed: " + guessText + "\n");
+    String currentGuess = guessField.getText();
+    clueArea.append("\nYou guessed: " + currentGuess + "\n");
 
-    if (controller.processGuess(guessText)){
-      clueArea.setBackground(Color.cyan);
-      clueArea.append(success + controller.sendClue());
+    if (controller.processGuess(currentGuess)) {
+      clueArea.setBackground(Color.CYAN);
+      clueArea.append(success);
+      clueArea.append(controller.sendClue());
     } else {
-      clueArea.setBackground(Color.white);
-      clueArea.append(tryAgain + controller.sendClue());
+      clueArea.setBackground(Color.WHITE);
+      clueArea.append(tryAgain);
+      clueArea.append(controller.sendClue());
     }
 
-    if (controller.getCelebrityGameSize() == 0){
+    if (controller.getCelebrityGameSize() == 0) {
       clueArea.append("\nNo more celebrities to guess.");
+      countdownTimer.stop();
+      staticTimerLabel.setText("YOU WIN!");
+      dynamicTimerLabel.setText("");
       guessButton.setEnabled(false);
       guessField.setEnabled(false);
     }
   }
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    JButton clicked = (JButton) e.getSource();
-    String buttonText = clicked.getText();
-
-    if (buttonText.equals("Submit guess")){
-      updateScreen();
-
+  public void actionPerformed(ActionEvent ae) {
+    Object source = ae.getSource();
+    if (source instanceof Timer) {
+      timerFires();
+    } else if (source instanceof JButton) {
+      JButton clickedButton = (JButton) source;
+      String buttonText = clickedButton.getText();
+      if (buttonText.equals("Submit guess")) {
+        updateScreen();
+      } else if (buttonText.equals("Start again")){
+        resetGamePanel();
+      }
     }
+  }
+
+  public void resetGamePanel(){
+    controller.reset();
+    staticTimerLabel.setText("Time remaining: ");
+    clueArea.setBackground(Color.white);
+    guessButton.setEnabled(true);
+    guessField.setEnabled(true);
+    guessField.setText("Enter guess here");
+
+
 
   }
 }

@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.LayoutManager;
 
 /**
  * GUI Frame class for the Celebrity Game
@@ -40,17 +41,31 @@ public class CelebrityFrame extends JFrame {
 		gamePanel = new CelebrityPanel(controller);
 		startPanel = new StartPanel(controller);
 		setupFrame();
-
 	}
-	
+
+	public CelebrityPanel getGamePanel(){
+		return gamePanel;
+	}
+
+	public void setGamePanel(CelebrityPanel panel){
+		gamePanel = panel;
+	}
+
+	public StartPanel getStartPanel(){
+		return startPanel;
+	}
+
+	public void setStartPanel(StartPanel panel){
+		startPanel = panel;
+	}
 	/**
 	 * Configures the JFrame window subclass to add the panel and set size based information.
 	 */
 	private void setupFrame() {
 		// the following are methods INHERITED from JFrame that we can call since
 		// CelebrityFrame is a subclass of JFrame
-		setSize(1000, 700);  // (window width, window height)
-		setTitle("Guess the Celebrity Game");
+		setSize(800, 500);  // (window width, window height)
+		setTitle("Celebrity Game");
 		add(panelCards);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -65,19 +80,20 @@ public class CelebrityFrame extends JFrame {
 		// must be the last line of the configuration to allow the GUI to be displayed.
 		// If not set as true the window will not display and the app will terminate.
 		setVisible(true);
-
-
 	}
+
+
 	
 	/**
 	 * Swaps the screen between the existing panels based on the String parameter.
 	 * @param screen The name of the screen to open.
 	 */
 	public void replaceScreen(String screen) {
-
 		if (screen.equals("GAME")) {
 			// send the first clue to the screen
 			gamePanel.addClue(controller.sendClue());
+		} else if (screen.equals("START")){
+			startPanel.startOver();
 		}
 
 		// present the appropriate panel based on the name provided in "screen"
@@ -85,6 +101,6 @@ public class CelebrityFrame extends JFrame {
 		LayoutManager layout = panelCards.getLayout();
 		CardLayout cardLayout = (CardLayout) layout;
 		cardLayout.show(panelCards, screen);
-
 	}
+
 }

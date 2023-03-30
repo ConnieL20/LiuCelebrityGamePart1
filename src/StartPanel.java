@@ -98,7 +98,6 @@ public class StartPanel extends JPanel implements ActionListener {
    */
   public StartPanel(CelebrityGame controllerRef) {
     super();
-
     controller = controllerRef;
     panelLayout = new SpringLayout();
     typeGroup = new ButtonGroup();
@@ -118,8 +117,6 @@ public class StartPanel extends JPanel implements ActionListener {
     setupPanel();
     setupLayout();
     setupListeners();
-
-
   }
   
   /**
@@ -139,9 +136,6 @@ public class StartPanel extends JPanel implements ActionListener {
     celebrityRadio.setSelected(true);
     startButton.setEnabled(false);
     typeGroup.add(celebrityRadio);
-
-
-
   }
   
   /**
@@ -181,9 +175,31 @@ public class StartPanel extends JPanel implements ActionListener {
   private void setupListeners() {
     addCelebrityButton.addActionListener(this);
     startButton.addActionListener(this);
-    
   }
 
+  // interface method: gets called whenever a component with an
+  // ActionListener attached get clicked
+  public void actionPerformed(ActionEvent ae) {
+    Object source = ae.getSource();
+    JButton clickedButton = (JButton) source;
+    String buttonText = clickedButton.getText();
+
+    if (buttonText.equals("Add current celebrity")) {
+      // when "add celebrity" button gets clicked:
+      answerField.setBackground(Color.WHITE);
+      clueField.setBackground(Color.WHITE);
+      if (validate(answerField.getText(), clueField.getText())) {
+        addToGame();
+      } else {
+        invalidInput();
+      }
+      celebrityCount = controller.getCelebrityGameSize();
+      celebrityCountLabel.setText(countLabelText + celebrityCount);
+    } else if (buttonText.equals("Start Celebrity game")) {
+      // call play method when start button is clicked
+      controller.play();
+    }
+  }
 
   /**
    * Validation method for the text to create a Celebrity object.
@@ -226,27 +242,9 @@ public class StartPanel extends JPanel implements ActionListener {
     startButton.setEnabled(true);
   }
 
-  @Override
-  public void actionPerformed(ActionEvent ae) {
-    // when "add celebrity" button gets clicked:
-    JButton clicked = (JButton) ae.getSource();
-    String buttonText = clicked.getText();
-
-    if (buttonText.equals("Add current celebrity")){
-      answerField.setBackground(Color.WHITE);
-      clueField.setBackground(Color.WHITE);
-      if (validate(answerField.getText(), clueField.getText())) {
-        addToGame();
-      } else {
-        invalidInput();
-      }
-    } else if (buttonText.equals("Start Celebrity game")) {
-      controller.play();
-
-    }
-
-    celebrityCount = controller.getCelebrityGameSize();
+  public void startOver(){
+    celebrityCount = 0;
     celebrityCountLabel.setText(countLabelText + celebrityCount);
-
+    startButton.setEnabled(false);
   }
 }
